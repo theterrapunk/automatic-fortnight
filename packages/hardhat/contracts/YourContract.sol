@@ -28,6 +28,6 @@ contract YourContract {
         require(withdrawRequest <= deposited, "should be less than or equal to balance");
         require(msg.sender == depositor, "hey not your money!");
 
-        depositor.transfer(withdrawRequest);
+        (bool success, bytes memory data) = depositor.call{value: withdrawRequest}('');
     }
 }
