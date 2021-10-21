@@ -6,17 +6,28 @@ import "hardhat/console.sol";
 
 contract YourContract {
 
-  //event SetPurpose(address sender, string purpose);
+    address payable depositor;
+    uint deposited;
 
-  string public purpose = "Building Unstoppable Apps!!!";
+    mapping(address => uint256) balance;
 
-  constructor() {
-    // what should we do on deploy?
-  }
+    function deposit() payable public {
+        require(msg.value > 0);
+        depositor = payable(msg.sender);
+        deposited = msg.value;
+        balance[depositor] = deposited;
+        console.log("%s deposited %s in the vault", depositor, deposited);
+    }
 
-  function setPurpose(string memory newPurpose) public {
-      purpose = newPurpose;
-      console.log(msg.sender,"set purpose to",purpose);
-      //emit SetPurpose(msg.sender, purpose);
-  }
+    function checkBalance() public view returns (uint) {
+        return address(this).balance;
+    }
+
+    function withdraw(uint withdrawRequest) public {
+        require(withdrawRequest > 0, "should be greater than 0");
+        require(withdrawRequest <= deposited, "should be less than or equal to balance");
+        require(msg.sender == depositor, "hey not your money!");
+
+        depositor.transfer(withdrawRequest);
+    }
 }
